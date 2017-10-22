@@ -88,7 +88,7 @@ class ZFSApi {
 		return promise;
 	}
 
-	send_mbuffer_to_host(snapshot_name, host, port, incremental, source_snapshot_name, mbuffer_size) {
+	send_mbuffer_to_host(snapshot_name, host, port, incremental, include_properties, source_snapshot_name, mbuffer_size) {
 		const self = this;
 
 		const promise = new Promise((resolve, reject) => {
@@ -97,6 +97,10 @@ class ZFSApi {
 
 			if (incremental) {
 				zfs_command_args.push('-I', source_snapshot_name);
+			}
+
+			if (!incremental && include_properties) {
+				zfs_command_args.push('-p');
 			}
 
 			zfs_command_args.push(snapshot_name);
