@@ -113,7 +113,8 @@ routes.push({
         validate: {
             payload: {
                 target: Joi.string().required(),
-                port: Joi.number().required()
+                port: Joi.number().required(),
+                force_rollback: Joi.boolean().optional()
             }
         }
     }
@@ -127,12 +128,13 @@ async function receive_snapshot(request, reply) {
 
         const target = request.payload.target;
         const port = request.payload.port;
+        const force_rollback = request.payload.force_rollback;
 
         logger.info(`Receiving snapshot: ${target} on port ${port}`);
 
         const api = new zfs_api(logger);
 
-        api.receive_mbuffer_to_zfs_receive(target, port).then(function(code) {
+        api.receive_mbuffer_to_zfs_receive(target, port, force_rollback).then(function(code) {
             logger.info(`Receive snapshot finished with code: ${code}`);
         }).catch(function(code) {
             logger.error(`Receive snapshot finished with code: ${code}`);

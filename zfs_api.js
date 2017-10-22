@@ -106,8 +106,8 @@ class ZFSApi {
 			zfs_command_args.push(snapshot_name);
 
 			const mbuffer_command = this.mbuffer_command;
-			const mbuffer_command_args = ['-O', `${host}:${port}`, '-m', mbuffer_size];
 
+			const mbuffer_command_args = ['-O', `${host}:${port}`, '-m', mbuffer_size];
 			this.log_command(zfs_command, zfs_command_args);
 			this.log_command(mbuffer_command, mbuffer_command_args);
 
@@ -144,10 +144,16 @@ class ZFSApi {
 		return promise;
 	}
 
-	receive_mbuffer_to_zfs_receive(receive_target, port) {
+	receive_mbuffer_to_zfs_receive(receive_target, port, force_rollback) {
 		const promise = new Promise((resolve, reject) => {
 			const zfs_command = this.zfs_command;
-			const zfs_command_args = [this.zfs_receive, receive_target];
+			const zfs_command_args = [this.zfs_receive];
+
+			if (force_rollback) {
+				zfs_command_args.push('-F');
+			}
+
+			zfs_command_args.push(receive_target);
 
 			const mbuffer_command = this.mbuffer_command;
 			const mbuffer_command_args = ['-I', port];
