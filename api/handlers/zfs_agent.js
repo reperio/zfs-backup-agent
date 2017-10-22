@@ -50,6 +50,45 @@ async function create_snapshot(request, reply) {
 
 routes.push({
     method: ['POST'],
+    path: '/zfs/destroy_snapshot',
+    handler: destroy_snapshot,
+    config: {
+        cors: true,
+        validate: {
+            payload: {
+                snapshot_name: Joi.string().required()
+            }
+        }
+    }
+});
+async function destroy_snapshot(request, reply) {
+    const logger = request.server.app.logger;
+
+    try {
+        const payload = JSON.stringify(request.payload);
+        logger.info(`destroy_snapshot called with payload: ${payload}`);
+
+        const snapshot_name = request.payload.snapshot_name;
+
+        logger.info(`Destroying snapshot: ${snapshot_name}`);
+
+        const api = new zfs_api(logger);
+
+        const status_code = await api.destroy_snapshot(snapshot_name);
+
+        logger.info(`Destroy snapshot finished with code: ${status_code}`);
+
+        return reply({message:'success', status_code: status_code});
+    }
+    catch (e) {
+        request.server.app.logger.error(e);
+
+        return reply(Boom.badImplementation('Snapshot destroy failed.'));
+    }
+}
+
+routes.push({
+    method: ['POST'],
     path: '/zfs/send_snapshot',
     handler: send_snapshot,
     config: {

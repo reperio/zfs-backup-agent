@@ -10,6 +10,7 @@ class ZFSApi {
 		this.zfs_send = 'send';
 		this.zfs_receive = 'receive';
 		this.zfs_snapshot = 'snapshot';
+		this.zfs_destroy = 'destroy';
 
 		this.zpool_command = 'zpool';
 
@@ -64,6 +65,21 @@ class ZFSApi {
 			}
 
 			command_args.push(snapshot_name);
+
+			this.log_command(command, command_args);
+
+			const child = spawn(command, command_args);
+
+			this.add_listeners(child, resolve, reject);
+		});
+		
+		return promise;
+	}
+
+	destroy_snapshot(snapshot_name) {
+		const promise = new Promise((resolve, reject) => {
+			const command = this.zfs_command;
+			const command_args = [this.zfs_destroy, snapshot_name];
 
 			this.log_command(command, command_args);
 
