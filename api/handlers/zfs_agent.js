@@ -61,7 +61,8 @@ routes.push({
                 source_snapshot_name: Joi.string().when('incremental', {
                     is: true,
                     then: Joi.required()
-                })
+                }),
+                mbuffer_size: Joi.string().optional()
             }
         }
     }
@@ -78,12 +79,13 @@ async function send_snapshot(request, reply) {
         const port = request.payload.port;
         const incremental = request.payload.incremental;
         const source_snapshot_name = request.payload.source_snapshot_name;
+        const mbuffer_size = request.payload.mbuffer_size || Config.mbuffer_size;
 
         logger.info(`Sending snapshot: ${snapshot_name} to ${host}:${port}`);
 
         const api = new zfs_api(logger);
 
-        api.send_mbuffer_to_host(snapshot_name, host, port, incremental, source_snapshot_name).then(function(code) {
+        api.send_mbuffer_to_host(snapshot_name, host, port, incremental, source_snapshot_name, mbuffer_size).then(function(code) {
             request.server.app.logger.info(`Send snapshot finished with code: ${code}`);
         }).catch(function(code) {
             request.server.app.logger.error(`Send snapshot failed with error: ${code}`);

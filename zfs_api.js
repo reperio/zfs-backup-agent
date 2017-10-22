@@ -88,7 +88,7 @@ class ZFSApi {
 		return promise;
 	}
 
-	send_mbuffer_to_host(snapshot_name, host, port, incremental, source_snapshot_name) {
+	send_mbuffer_to_host(snapshot_name, host, port, incremental, source_snapshot_name, mbuffer_size) {
 		const self = this;
 
 		const promise = new Promise((resolve, reject) => {
@@ -102,7 +102,7 @@ class ZFSApi {
 			zfs_command_args.push(snapshot_name);
 
 			const mbuffer_command = this.mbuffer_command;
-			const mbuffer_command_args = ['-O', `${host}:${port}`];
+			const mbuffer_command_args = ['-O', `${host}:${port}`, '-m', mbuffer_size];
 
 			this.log_command(zfs_command, zfs_command_args);
 			this.log_command(mbuffer_command, mbuffer_command_args);

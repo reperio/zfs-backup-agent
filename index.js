@@ -10,20 +10,20 @@ require('winston-daily-rotate-file');
 // Create a server with a host and port
 const server = new Hapi.Server({});
 server.connection({
-    host: Config.agent.host,
-    port: Config.agent.port
+    host: Config.host,
+    port: Config.port
 });
 
 server.app.config = Config;
 
-const log_directory = Config.agent.log_directory;
+const log_directory = Config.log_directory;
 
 const app_file_transport = new (winston.transports.DailyRotateFile)({
 	name: 'file_transport',
     filename: `${log_directory}/log`,
     datePattern: 'agent-app-yyyy-MM-dd.',
     prepend: true,
-    level: Config.agent.app_file_log_level,
+    level: Config.app_file_log_level,
     humanReadableUnhandledException: true,
     handleExceptions: true,
     json: false
@@ -34,7 +34,7 @@ const app_json_transport = new (winston.transports.DailyRotateFile)({
     filename: `${log_directory}/log`,
     datePattern: 'agent-json-yyyy-MM-dd.',
     prepend: true,
-    level: Config.agent.app_json_log_level,
+    level: Config.app_json_log_level,
     humanReadableUnhandledException: true,
     handleExceptions: true,
     json: true
@@ -44,7 +44,7 @@ const trace_file_transport = new (winston.transports.DailyRotateFile)({
     filename: `${log_directory}/log`,
     datePattern: 'agent-trace-yyyy-MM-dd.',
     prepend: true,
-    level: Config.agent.trace_log_level,
+    level: Config.trace_log_level,
     humanReadableUnhandledException: true,
     handleExceptions: true,
     json: true
