@@ -15,7 +15,8 @@ routes.push({
         cors: true,
         validate: {
             payload: {
-                snapshot_name: Joi.string().required()
+                snapshot_name: Joi.string().required(),
+                recursive: Joi.boolean().optional()
             }
         }
     }
@@ -28,12 +29,13 @@ async function create_snapshot(request, reply) {
         logger.info(`create_snapshot called with payload: ${payload}`);
 
         const snapshot_name = request.payload.snapshot_name;
+        const recursive = request.payload.recursive;
 
         logger.info(`Creating snapshot: ${snapshot_name}`);
 
         const api = new zfs_api(logger);
 
-        const status_code = await api.create_snapshot(snapshot_name);
+        const status_code = await api.create_snapshot(snapshot_name, recursive);
 
         logger.info(`Create snapshot finished with code: ${status_code}`);
 

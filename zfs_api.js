@@ -54,10 +54,16 @@ class ZFSApi {
 		});
 	}
 
-	create_snapshot(snapshot_name) {
+	create_snapshot(snapshot_name, recursive) {
 		const promise = new Promise((resolve, reject) => {
 			const command = this.zfs_command;
-			const command_args = [this.zfs_snapshot, snapshot_name];
+			const command_args = [this.zfs_snapshot];
+
+			if (recursive) {
+				command_args.push('-r');
+			}
+
+			command_args.push(snapshot_name);
 
 			this.log_command(command, command_args);
 
