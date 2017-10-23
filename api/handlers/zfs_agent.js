@@ -112,6 +112,7 @@ routes.push({
 });
 async function send_snapshot(request, reply) {
     const logger = request.server.app.logger;
+    const config = request.server.app.config;
 
     try {
         const payload = JSON.stringify(request.payload);
@@ -123,8 +124,8 @@ async function send_snapshot(request, reply) {
         const incremental = request.payload.incremental;
         const include_properties = request.payload.include_properties;
         const source_snapshot_name = request.payload.source_snapshot_name;
-        const mbuffer_size = request.payload.mbuffer_size || Config.mbuffer_size;
-        const mbuffer_rate = request.payload.mbuffer_rate || Config.mbuffer_rate;
+        const mbuffer_size = request.payload.mbuffer_size || config.mbuffer_size;
+        const mbuffer_rate = request.payload.mbuffer_rate || config.mbuffer_rate;
 
         logger.info(`Sending snapshot: ${snapshot_name} to ${host}:${port}`);
 
