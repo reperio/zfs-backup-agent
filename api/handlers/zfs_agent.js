@@ -16,7 +16,8 @@ routes.push({
         validate: {
             payload: {
                 snapshot_name: Joi.string().required(),
-                recursive: Joi.boolean().optional()
+                recursive: Joi.boolean().optional(),
+                job_history_id: Joi.string().guid().required()
             }
         }
     }
@@ -30,14 +31,15 @@ async function create_snapshot(request, reply) {
 
         const snapshot_name = request.payload.snapshot_name;
         const recursive = request.payload.recursive;
+        const job_history_id = request.payload.job_history_id;
 
-        logger.info(`Creating snapshot: ${snapshot_name}`);
+        logger.info(`${job_history_id} - Creating snapshot: ${snapshot_name}`);
 
         const api = new zfs_api(logger);
 
         const status_code = await api.create_snapshot(snapshot_name, recursive);
 
-        logger.info(`Create snapshot finished with code: ${status_code}`);
+        logger.info(`${job_history_id} - Create snapshot finished with code: ${status_code}`);
 
         return reply({message:'success', status_code: status_code});
     }
@@ -56,7 +58,8 @@ routes.push({
         cors: true,
         validate: {
             payload: {
-                snapshot_name: Joi.string().required()
+                snapshot_name: Joi.string().required(),
+                job_history_id: Joi.string().guid().required()
             }
         }
     }
@@ -69,14 +72,15 @@ async function destroy_snapshot(request, reply) {
         logger.info(`destroy_snapshot called with payload: ${payload}`);
 
         const snapshot_name = request.payload.snapshot_name;
+        const job_history_id = request.payload.job_history_id;
 
-        logger.info(`Destroying snapshot: ${snapshot_name}`);
+        logger.info(`${job_history_id} - Destroying snapshot: ${snapshot_name}`);
 
         const api = new zfs_api(logger);
 
         const status_code = await api.destroy_snapshot(snapshot_name);
 
-        logger.info(`Destroy snapshot finished with code: ${status_code}`);
+        logger.info(`${job_history_id} - Destroy snapshot finished with code: ${status_code}`);
 
         return reply({message:'success', status_code: status_code});
     }
@@ -129,20 +133,21 @@ async function send_snapshot(request, reply) {
         const mbuffer_rate = request.payload.mbuffer_rate || config.mbuffer_rate;
         const job_history_id = request.payload.job_history_id;
 
-        logger.info(`Sending snapshot: ${snapshot_name} to ${host}:${port}`);
+        logger.info(`${job_history_id} - Sending snapshot: ${snapshot_name} to ${host}:${port}`);
 
         const api = new zfs_api(logger);
 
         api.send_mbuffer_to_host(snapshot_name, host, port, incremental, include_properties, source_snapshot_name, mbuffer_size, mbuffer_rate).then(function(code) {
-            request.server.app.logger.info(`Send snapshot finished with code: ${code}`);
+            request.server.app.logger.info(`${job_history_id} - Send snapshot finished with code: ${code}`);
             //notify server of success
             await request.server.app.controller_api.notify_send_complete(job_history_id, code);
         }).catch(function(code) {
-            request.server.app.logger.error(`Send snapshot failed with error: ${code}`);
+            request.server.app.logger.error(`${job_history_id} - Send snapshot failed with error: ${code}`);
             //notify server of failure
+            await request.server.app.controller_api.notify_send_complete(job_history_id, code);
         });
 
-        logger.info(`Send command executed.`);
+        logger.info(`${job_history_id} - Send command executed.`);
 
         return reply({message:'success', status_code: 0});
     }
@@ -181,14 +186,16 @@ async function receive_snapshot(request, reply) {
         const force_rollback = request.payload.force_rollback;
         const job_history_id = request.payload.job_history_id;
 
-        logger.info(`Receiving snapshot: ${target} on port ${port}`);
+        logger.info(`${job_history_id} - Receiving snapshot: ${target} on port ${port}`);
 
         const api = new zfs_api(logger);
 
         api.receive_mbuffer_to_zfs_receive(target, port, force_rollback).then(function(code) {
-            logger.info(`Receive snapshot finished with code: ${code}`);
+            logger.info(`${job_history_id} - Receive snapshot finished with code: ${code}`);
+            await request.server.app.controller_api.notify_receive_complete(job_history_id, code);
         }).catch(function(code) {
-            logger.error(`Receive snapshot finished with code: ${code}`);
+            logger.error(`${job_history_id} - Receive snapshot finished with code: ${code}`);
+            await request.server.app.controller_api.notify_receive_complete(job_history_id, code);
         });
 
         return reply({message:'success', status_code: 0});
