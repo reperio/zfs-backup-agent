@@ -4,16 +4,20 @@ class ControllerApi {
 	constructor(config, logger) {
 		this.config = config;
 		this.logger = logger;
+
+        this.urls = {
+            notify_send_complete: '/zfs/send_complete'
+        }
 	}
 
-	async notify_send_complete() {
+	async notify_send_complete(job_history_id, code) {
 		const http_options = {
-            uri: this.url,
+            uri: this.urls.notify_send_complete,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            json: {}
+            json: {job_history_id: job_history_id, code: code}
         };
 
         try {
