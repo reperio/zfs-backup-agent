@@ -25,6 +25,7 @@ class ControllerApi {
 
         try {
         	const result = await request(http_options);
+            this.logger.info(`${job_history_id} - notification complete`);
 
         	return true;
         } catch(err) {
@@ -49,6 +50,7 @@ class ControllerApi {
 
         try {
             const result = await request(http_options);
+            this.logger.info(`${job_history_id} - notification complete`);
 
             return true;
         } catch(err) {
