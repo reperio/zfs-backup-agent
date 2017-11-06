@@ -27,7 +27,7 @@ exports.register = function (server, options, next) {
     });
 
     server.route(ZFSAgentHandlers);
-    server.app.zfs_controller_api = new ControllerApi(server.app.config);
+    server.app.zfs_controller_api = new ControllerApi(server.app.config, server.app.logger);
     
     next();
 };

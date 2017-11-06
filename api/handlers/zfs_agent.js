@@ -105,7 +105,8 @@ routes.push({
                     then: Joi.required()
                 }),
                 mbuffer_size: Joi.string().optional(),
-                mbuffer_rate: Joi.string().optional()
+                mbuffer_rate: Joi.string().optional(),
+                job_history_id: Joi.string().guid().required()
             }
         }
     }
@@ -126,6 +127,7 @@ async function send_snapshot(request, reply) {
         const source_snapshot_name = request.payload.source_snapshot_name;
         const mbuffer_size = request.payload.mbuffer_size || config.mbuffer_size;
         const mbuffer_rate = request.payload.mbuffer_rate || config.mbuffer_rate;
+        const job_history_id = request.payload.job_history_id;
 
         logger.info(`Sending snapshot: ${snapshot_name} to ${host}:${port}`);
 
@@ -133,8 +135,11 @@ async function send_snapshot(request, reply) {
 
         api.send_mbuffer_to_host(snapshot_name, host, port, incremental, include_properties, source_snapshot_name, mbuffer_size, mbuffer_rate).then(function(code) {
             request.server.app.logger.info(`Send snapshot finished with code: ${code}`);
+            //notify server of success
+            await request.server.app.controller_api.notify_send_complete(job_history_id, code);
         }).catch(function(code) {
             request.server.app.logger.error(`Send snapshot failed with error: ${code}`);
+            //notify server of failure
         });
 
         logger.info(`Send command executed.`);
@@ -158,7 +163,8 @@ routes.push({
             payload: {
                 target: Joi.string().required(),
                 port: Joi.number().required(),
-                force_rollback: Joi.boolean().optional()
+                force_rollback: Joi.boolean().optional(),
+                job_history_id: Joi.string().guid().required()
             }
         }
     }
@@ -173,6 +179,7 @@ async function receive_snapshot(request, reply) {
         const target = request.payload.target;
         const port = request.payload.port;
         const force_rollback = request.payload.force_rollback;
+        const job_history_id = request.payload.job_history_id;
 
         logger.info(`Receiving snapshot: ${target} on port ${port}`);
 

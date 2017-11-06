@@ -6,5 +6,6 @@ module.exports = {
 	host: '0.0.0.0',
 	port: 8000,
 	mbuffer_size: '1G',
-	mbuffer_rate: '500k'
+	mbuffer_rate: '500k',
+	controller_api_url: 'http://localhost:3000/api'
 };
