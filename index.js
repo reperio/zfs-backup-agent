@@ -91,9 +91,9 @@ server.register({
 
 //make sure unhandled exceptions are logged
 server.on('request-error', (request, response) => {
-        request.server.app.logger.error(response);
-    }
-);
+    request.server.app.logger.error('Global error caught');
+    request.server.app.logger.error(response);
+});
 
 
 server.ext({
