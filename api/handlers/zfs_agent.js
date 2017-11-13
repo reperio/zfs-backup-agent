@@ -140,14 +140,14 @@ async function send_snapshot(request, reply) {
             request.server.app.logger.info(`${job_history_id} - Send snapshot finished with code: ${code}`);
 
             //notify server of success
-            request.server.app.controller_api.notify_send_complete(job_history_id, code).catch(function (err) {
+            request.server.app.zfs_controller_api.notify_send_complete(job_history_id, code).catch(function (err) {
                 request.server.app.logger.info(`${job_history_id} - Failed to notify server of send success`);
                 request.server.app.logger.error(err);
             });
         }).catch(function (code) {
             request.server.app.logger.error(`${job_history_id} - Send snapshot failed with error: ${code}`);
             //notify server of failure
-            request.server.app.controller_api.notify_send_complete(job_history_id, code).catch(function (err) {
+            request.server.app.zfs_controller_api.notify_send_complete(job_history_id, code).catch(function (err) {
                 request.server.app.logger.info(`${job_history_id} - Failed to notify server of send failured`);
                 request.server.app.logger.error(err);
             });
@@ -197,13 +197,13 @@ async function receive_snapshot(request, reply) {
 
         api.receive_mbuffer_to_zfs_receive(target, port, force_rollback).then(function (code) {
             logger.info(`${job_history_id} - Receive snapshot finished with code: ${code}`);
-            request.server.app.controller_api.notify_receive_complete(job_history_id, code).catch(function (err) {
+            request.server.app.zfs_controller_api.notify_receive_complete(job_history_id, code).catch(function (err) {
                 request.server.app.logger.info(`${job_history_id} - Failed to notify server of receive success`);
                 request.server.app.logger.error(err);
             });
         }).catch(function (code) {
             logger.error(`${job_history_id} - Receive snapshot finished with code: ${code}`);
-            request.server.app.controller_api.notify_receive_complete(job_history_id, code).catch(function (err) {
+            request.server.app.zfs_controller_api.notify_receive_complete(job_history_id, code).catch(function (err) {
                 request.server.app.logger.info(`${job_history_id} - Failed to notify server of receive failure`);
                 request.server.app.logger.error(err);
             });

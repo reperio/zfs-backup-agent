@@ -2,7 +2,6 @@
 
 const Config = require('./config');
 const Hapi = require('hapi');
-const moment = require("moment");
 
 const winston = require('winston');
 require('winston-daily-rotate-file');
@@ -19,7 +18,7 @@ server.app.config = Config;
 const log_directory = Config.log_directory;
 
 const app_file_transport = new (winston.transports.DailyRotateFile)({
-	name: 'file_transport',
+    name: 'file_transport',
     filename: `${log_directory}/log`,
     datePattern: 'agent-app-yyyy-MM-dd.',
     prepend: true,
@@ -30,7 +29,7 @@ const app_file_transport = new (winston.transports.DailyRotateFile)({
 });
 
 const app_json_transport = new (winston.transports.DailyRotateFile)({
-	name: 'json_transport',
+    name: 'json_transport',
     filename: `${log_directory}/log`,
     datePattern: 'agent-json-yyyy-MM-dd.',
     prepend: true,
@@ -61,16 +60,16 @@ const console_transport = new (winston.transports.Console)({
 
 const app_logger = new (winston.Logger)({
     transports: [
-      app_file_transport,
-      app_json_transport,
-      console_transport
+        app_file_transport,
+        app_json_transport,
+        console_transport
     ]
 });
 
 const trace_logger = new (winston.Logger)({
     transports: [
-      trace_file_transport,
-      console_transport
+        trace_file_transport,
+        console_transport
     ]
 });
 
@@ -78,14 +77,14 @@ server.app.logger = app_logger;
 server.app.trace_logger = trace_logger;
 
 server.register({
-    register: require("./api")
+    register: require('./api')
 }, {
     routes: {
-        prefix: "/api"
+        prefix: '/api'
     }
 }, (err) => {
     if (err) {
-        console.error(err);
+        app_logger.error(err);
     }
 });
 
@@ -97,23 +96,23 @@ server.on('request-error', (request, response) => {
 
 
 server.ext({
-    type: "onPreResponse",
+    type: 'onPreResponse',
     method: async (request, reply) => {
         const response = request.response;
 
         if (response.isBoom) {
             request.server.app.trace_logger.info({
-                path:request.route.path, 
-                method: request.route.method, 
-                fingerprint: request.route.fingerprint, 
+                path: request.route.path,
+                method: request.route.method,
+                fingerprint: request.route.fingerprint,
                 code: response.output.statusCode,
                 payload: response.output.payload
             });
         } else {
             request.server.app.trace_logger.info({
-                path:request.route.path, 
-                method: request.route.method, 
-                fingerprint: request.route.fingerprint, 
+                path: request.route.path,
+                method: request.route.method,
+                fingerprint: request.route.fingerprint,
                 code: response.statusCode,
                 payload: response.payload
             });
@@ -126,12 +125,10 @@ server.ext({
 
 server.start(err => {
     if (err) {
-    	console.log(err);
+        app_logger.error(err);
         throw err;
     }
-    console.log('Server running at:', server.info.uri);
+    app_logger.info('Server running at:', server.info.uri);
 });
-
-
 
 module.exports = server;
