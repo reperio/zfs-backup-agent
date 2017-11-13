@@ -148,7 +148,7 @@ async function send_snapshot(request, reply) {
             request.server.app.logger.error(`${job_history_id} - Send snapshot failed with error: ${code}`);
             //notify server of failure
             request.server.app.zfs_controller_api.notify_send_complete(job_history_id, code).catch(function (err) {
-                request.server.app.logger.info(`${job_history_id} - Failed to notify server of send failured`);
+                request.server.app.logger.info(`${job_history_id} - Failed to notify server of send failure`);
                 request.server.app.logger.error(err);
             });
         });
