@@ -113,38 +113,41 @@ class ZFSApi {
 
     /* eslint max-params: 0 */
     send_mbuffer_to_host(snapshot_name, host, port, incremental, include_properties, source_snapshot_name, mbuffer_size, mbuffer_rate) {
-        const promise = new Promise((resolve, reject) => {
-            const zfs_command = this.zfs_command;
-            const zfs_command_args = [this.zfs_send];
+        const zfs_promise = new Promise((resolve, reject) => {
+            const mbuffer_promise = new Promise((mbuffer_resolve, mbuffer_reject) => {
+                const zfs_command = this.zfs_command;
+                const zfs_command_args = [this.zfs_send];
 
-            if (incremental) {
-                zfs_command_args.push('-I', source_snapshot_name);
-            }
+                if (incremental) {
+                    zfs_command_args.push('-I', source_snapshot_name);
+                }
 
-            if (!incremental && include_properties) {
-                zfs_command_args.push('-p');
-            }
+                if (!incremental && include_properties) {
+                    zfs_command_args.push('-p');
+                }
 
-            zfs_command_args.push(snapshot_name);
+                zfs_command_args.push(snapshot_name);
 
-            const mbuffer_command = this.mbuffer_command;
+                const mbuffer_command = this.mbuffer_command;
 
-            const mbuffer_command_args = ['-O', `${host}:${port}`, '-m', mbuffer_size, '-r', mbuffer_rate];
-            this.log_command(zfs_command, zfs_command_args);
-            this.log_command(mbuffer_command, mbuffer_command_args);
+                const mbuffer_command_args = ['-O', `${host}:${port}`, '-m', mbuffer_size, '-r', mbuffer_rate];
+                this.log_command(zfs_command, zfs_command_args);
+                this.log_command(mbuffer_command, mbuffer_command_args);
 
-            const zfs_send = spawn(zfs_command, zfs_command_args);
-            const mbuffer = spawn(mbuffer_command, mbuffer_command_args);
+                const zfs_send = spawn(zfs_command, zfs_command_args);
+                const mbuffer = spawn(mbuffer_command, mbuffer_command_args);
 
-            zfs_send.stdout.pipe(mbuffer.stdin);
+                zfs_send.stdout.pipe(mbuffer.stdin);
 
-            mbuffer.stdout.pipe(process.stdout);
-            mbuffer.stderr.pipe(process.stderr);
+                mbuffer.stdout.pipe(process.stdout);
+                mbuffer.stderr.pipe(process.stderr);
 
-            this.add_listeners(zfs_send, resolve, reject);
+                this.add_listeners(zfs_send, resolve, reject);
+                this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject);
+            });
         });
 
-        return promise;
+        return zfs_promise;
     }
 
     receive_mbuffer_to_file(file_name, port) {
