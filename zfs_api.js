@@ -23,9 +23,33 @@ class ZFSApi {
         this.logger.info(`Executing: '${command} ${arg_string}'`);
     }
 
-    add_listeners(process, resolve, reject) {
+    add_listeners(process, resolve, reject, capture_output) {
         /* eslint consistent-this: 0 */
         const self = this;
+        let stdout = '';
+        let stderr = '';
+
+        if (capture_output) {
+            process.stdout.on('data', function(chunk) {
+                stdout += chunk;
+            });
+            
+            process.stdout.on('end', function() {
+                console.log('STDOUT');
+                console.log(stdout);
+                console.log();
+            });
+
+            process.stderr.on('data', function(chunk) {
+                stderr += chunk;
+            });
+            
+            process.stderr.on('end', function() {
+                console.log('STDERR');
+                console.log(stderr);
+                console.log();
+            });
+        }
 
         process.addListener('exit', function (code, signal) {
             self.logger.info(`EXIT: ${code} | ${signal}`);
@@ -139,11 +163,11 @@ class ZFSApi {
 
                 zfs_send.stdout.pipe(mbuffer.stdin);
 
-                mbuffer.stdout.pipe(process.stdout);
-                mbuffer.stderr.pipe(process.stderr);
+                //mbuffer.stdout.pipe(process.stdout);
+                //mbuffer.stderr.pipe(process.stderr);
 
-                this.add_listeners(zfs_send, resolve, reject);
-                this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject);
+                this.add_listeners(zfs_send, resolve, reject, false);
+                this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
             });
         });
 
