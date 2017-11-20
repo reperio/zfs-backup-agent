@@ -219,8 +219,8 @@ class ZFSApi {
                 zfs_receive.stdout.pipe(process.stdout);
                 zfs_receive.stderr.pipe(process.stderr);
 
-                this.add_listeners(zfs_receive, resolve, reject, false);
-                this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
+                this.add_listeners(zfs_receive, resolve, reject, true);
+                this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, false);
             });
         });
 
