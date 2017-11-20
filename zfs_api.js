@@ -95,7 +95,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -110,7 +110,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -129,7 +129,7 @@ class ZFSApi {
 
             child.stdout.pipe(file);
 
-            this.add_listeners(child, resolve, reject);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -187,7 +187,7 @@ class ZFSApi {
 
             child.stdout.pipe(file);
 
-            this.add_listeners(child, resolve, reject);
+            this.add_listeners(child, resolve, reject, true);
         });
 
         return promise;
@@ -195,30 +195,33 @@ class ZFSApi {
 
     receive_mbuffer_to_zfs_receive(receive_target, port, force_rollback, mbuffer_size, mbuffer_rate) {
         const promise = new Promise((resolve, reject) => {
-            const zfs_command = this.zfs_command;
-            const zfs_command_args = [this.zfs_receive];
+            const mbuffer_promise = new Promise((mbuffer_resolve, mbuffer_reject) => {
+                const zfs_command = this.zfs_command;
+                const zfs_command_args = [this.zfs_receive];
 
-            if (force_rollback) {
-                zfs_command_args.push('-F');
-            }
+                if (force_rollback) {
+                    zfs_command_args.push('-F');
+                }
 
-            zfs_command_args.push(receive_target);
+                zfs_command_args.push(receive_target);
 
-            const mbuffer_command = this.mbuffer_command;
-            const mbuffer_command_args = ['-I', port, '-m', mbuffer_size, '-r', mbuffer_rate];
+                const mbuffer_command = this.mbuffer_command;
+                const mbuffer_command_args = ['-I', port, '-m', mbuffer_size, '-r', mbuffer_rate];
 
-            this.log_command(zfs_command, zfs_command_args);
-            this.log_command(mbuffer_command, mbuffer_command_args);
+                this.log_command(zfs_command, zfs_command_args);
+                this.log_command(mbuffer_command, mbuffer_command_args);
 
-            const zfs_receive = spawn(zfs_command, zfs_command_args);
-            const mbuffer = spawn(mbuffer_command, mbuffer_command_args);
+                const zfs_receive = spawn(zfs_command, zfs_command_args);
+                const mbuffer = spawn(mbuffer_command, mbuffer_command_args);
 
-            mbuffer.stdout.pipe(zfs_receive.stdin);
+                mbuffer.stdout.pipe(zfs_receive.stdin);
 
-            zfs_receive.stdout.pipe(process.stdout);
-            zfs_receive.stderr.pipe(process.stderr);
+                zfs_receive.stdout.pipe(process.stdout);
+                zfs_receive.stderr.pipe(process.stderr);
 
-            this.add_listeners(zfs_receive, resolve, reject);
+                this.add_listeners(zfs_receive, resolve, reject, false);
+                this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
+            });
         });
 
         return promise;
