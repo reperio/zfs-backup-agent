@@ -95,7 +95,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject, true);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -110,7 +110,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject, true);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -129,7 +129,7 @@ class ZFSApi {
 
             child.stdout.pipe(file);
 
-            this.add_listeners(child, resolve, reject, true);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -166,7 +166,7 @@ class ZFSApi {
                 //mbuffer.stdout.pipe(process.stdout);
                 //mbuffer.stderr.pipe(process.stderr);
 
-                this.add_listeners(zfs_send, resolve, reject, true);
+                this.add_listeners(zfs_send, resolve, reject, false);
                 this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
             });
         });
@@ -187,7 +187,7 @@ class ZFSApi {
 
             child.stdout.pipe(file);
 
-            this.add_listeners(child, resolve, reject, true);
+            this.add_listeners(child, resolve, reject, false);
         });
 
         return promise;
@@ -219,7 +219,7 @@ class ZFSApi {
                 zfs_receive.stdout.pipe(process.stdout);
                 zfs_receive.stderr.pipe(process.stderr);
 
-                this.add_listeners(zfs_receive, resolve, reject, true);
+                this.add_listeners(zfs_receive, resolve, reject, false);
                 this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
             });
         });
