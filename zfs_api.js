@@ -35,9 +35,9 @@ class ZFSApi {
             });
             
             process.stdout.on('end', function() {
-                console.log('STDOUT');
-                console.log(stdout);
-                console.log();
+                self.logger.info('STDOUT');
+                self.logger.info(stdout);
+                self.logger.info();
             });
 
             process.stderr.on('data', function(chunk) {
@@ -45,9 +45,9 @@ class ZFSApi {
             });
             
             process.stderr.on('end', function() {
-                console.log('STDERR');
-                console.log(stderr);
-                console.log();
+                self.logger.info('STDERR');
+                self.logger.info(stderr);
+                self.logger.info();
             });
         }
 
@@ -95,7 +95,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject, false);
+            this.add_listeners(child, resolve, reject, true);
         });
 
         return promise;
@@ -110,7 +110,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject, false);
+            this.add_listeners(child, resolve, reject, true);
         });
 
         return promise;
@@ -129,7 +129,7 @@ class ZFSApi {
 
             child.stdout.pipe(file);
 
-            this.add_listeners(child, resolve, reject, false);
+            this.add_listeners(child, resolve, reject, true);
         });
 
         return promise;
@@ -166,7 +166,7 @@ class ZFSApi {
                 //mbuffer.stdout.pipe(process.stdout);
                 //mbuffer.stderr.pipe(process.stderr);
 
-                this.add_listeners(zfs_send, resolve, reject, false);
+                this.add_listeners(zfs_send, resolve, reject, true);
                 this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
             });
         });
@@ -219,7 +219,7 @@ class ZFSApi {
                 zfs_receive.stdout.pipe(process.stdout);
                 zfs_receive.stderr.pipe(process.stderr);
 
-                this.add_listeners(zfs_receive, resolve, reject, false);
+                this.add_listeners(zfs_receive, resolve, reject, true);
                 this.add_listeners(mbuffer, mbuffer_resolve, mbuffer_reject, true);
             });
         });
