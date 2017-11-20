@@ -174,13 +174,16 @@ routes.push({
                 target: Joi.string().required(),
                 port: Joi.number().required(),
                 force_rollback: Joi.boolean().optional(),
-                job_history_id: Joi.string().guid().required()
+                job_history_id: Joi.string().guid().required(),
+                mbuffer_size: Joi.string().optional(),
+                mbuffer_rate: Joi.string().optional()
             }
         }
     }
 });
 async function receive_snapshot(request, reply) {
     const logger = request.server.app.logger;
+    const config = request.server.app.config;
 
     try {
         const payload = JSON.stringify(request.payload);
@@ -190,12 +193,14 @@ async function receive_snapshot(request, reply) {
         const port = request.payload.port;
         const force_rollback = request.payload.force_rollback;
         const job_history_id = request.payload.job_history_id;
+        const mbuffer_size = request.payload.mbuffer_size || config.mbuffer_size;
+        const mbuffer_rate = request.payload.mbuffer_rate || config.mbuffer_rate;
 
         logger.info(`${job_history_id} - Receiving snapshot: ${target} on port ${port}`);
 
         const api = new ZFSApi(logger);
 
-        api.receive_mbuffer_to_zfs_receive(target, port, force_rollback).then(function (code) {
+        api.receive_mbuffer_to_zfs_receive(target, port, force_rollback, mbuffer_size, mbuffer_rate).then(function (code) {
             logger.info(`${job_history_id} - Receive snapshot finished with code: ${code}`);
             request.server.app.zfs_controller_api.notify_receive_complete(job_history_id, code).catch(function (err) {
                 request.server.app.logger.info(`${job_history_id} - Failed to notify server of receive success`);
