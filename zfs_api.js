@@ -143,7 +143,7 @@ class ZFSApi {
                 const zfs_command_args = [this.zfs_send];
 
                 if (incremental) {
-                    zfs_command_args.push('-I', source_snapshot_name);
+                    zfs_command_args.push('-i', source_snapshot_name);
                 }
 
                 if (!incremental && include_properties) {
