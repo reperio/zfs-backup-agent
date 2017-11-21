@@ -95,7 +95,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject, false);
+            this.add_listeners(child, resolve, reject, true);
         });
 
         return promise;
@@ -110,7 +110,7 @@ class ZFSApi {
 
             const child = spawn(command, command_args);
 
-            this.add_listeners(child, resolve, reject, false);
+            this.add_listeners(child, resolve, reject, true);
         });
 
         return promise;
