@@ -206,7 +206,8 @@ class ZFSApi {
                 zfs_command_args.push(receive_target);
 
                 const mbuffer_command = this.mbuffer_command;
-                const mbuffer_command_args = ['-I', port, '-m', mbuffer_size, '-r', mbuffer_rate];
+                //const mbuffer_command_args = ['-I', port, '-m', mbuffer_size, '-r', mbuffer_rate];
+                const mbuffer_command_args = ['-I', port, '-m', mbuffer_size];
 
                 this.log_command(zfs_command, zfs_command_args);
                 this.log_command(mbuffer_command, mbuffer_command_args);
