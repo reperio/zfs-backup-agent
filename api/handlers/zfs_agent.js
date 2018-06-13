@@ -59,7 +59,8 @@ routes.push({
         validate: {
             payload: {
                 snapshot_name: Joi.string().required(),
-                job_history_id: Joi.string().guid().required()
+                job_history_id: Joi.string().guid().required(),
+                host_id: Joi.string().guid().required()
             }
         }
     }
@@ -73,6 +74,7 @@ async function destroy_snapshot(request, reply) {
 
         const snapshot_name = request.payload.snapshot_name;
         const job_history_id = request.payload.job_history_id;
+        const host_id = request.payload.host_id;
 
         logger.info(`${job_history_id} - Destroying snapshot: ${snapshot_name}`);
 
@@ -81,6 +83,11 @@ async function destroy_snapshot(request, reply) {
         const status_code = await api.destroy_snapshot(snapshot_name);
 
         logger.info(`${job_history_id} - Destroy snapshot finished with code: ${status_code}`);
+        
+        request.server.app.zfs_controller_api.notify_destroy_complete(job_history_id, status_code, host_id).catch(function (err) {
+            request.server.app.logger.info(`${job_history_id} - Failed to notify server of destroy success`);
+            request.server.app.logger.error(err);
+        });
 
         return reply({message: 'success', status_code: status_code});
     } catch (e) {
