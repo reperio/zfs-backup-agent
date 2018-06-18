@@ -8,7 +8,7 @@ class ControllerApi {
         this.urls = {
             notify_send_complete: '/zfs/send_complete',
             notify_receive_complete: '/zfs/receive_complete',
-            notify_destroy_complete: 'zfs/destroy_complete'
+            notify_destroy_complete: '/zfs/destroy_complete'
         };
     }
 
