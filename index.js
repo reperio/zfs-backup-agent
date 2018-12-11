@@ -55,7 +55,8 @@ const console_transport = new (winston.transports.Console)({
     humanReadableUnhandledException: true,
     handleExceptions: true,
     json: false,
-    colorize: true
+    colorize: true,
+    timestamp: true
 });
 
 const app_logger = new (winston.Logger)({
